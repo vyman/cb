@@ -2,9 +2,9 @@ import { defineConfig, type HtmlTagDescriptor, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
+import { readFileSync } from 'node:fs'
 
-import siteConfiguration from './.figma/make/site.json'
-
+const siteConfiguration = loadSiteConfiguration()
 
 // Vite config — https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -72,6 +72,17 @@ type FigmaSiteConfiguration = {
   }
   accessibility?: {
     addBypassLinks?: boolean
+  }
+}
+
+function loadSiteConfiguration(): FigmaSiteConfiguration {
+  try {
+    return JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '.figma/make/site.json'), 'utf8'),
+    ) as FigmaSiteConfiguration
+  } catch {
+    // Figma supplies this file locally, but external hosts may omit platform files.
+    return {}
   }
 }
 
